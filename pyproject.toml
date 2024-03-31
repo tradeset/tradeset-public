@@ -1,18 +1,32 @@
 [project]
 name = "tradeset"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
-  { name="Example Author", email="author@example.com" },
+  { name="Mohammad Talaei", email="mohammadstar1375@gmail.com" },
+  { name="Morteza Omidi", email="Mortezaomidi24@yahoo.com" },
 ]
-description = "A small example package"
+description = "Tradeset"
 readme = "README.md"
 requires-python = ">=3.8"
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
+dependencies = [
+  "pandas",
+  "scikit-learn",
+  "numpy",
+  "requests",
+]
+
+
+
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://tradeset.ai/"
+Documents = "https://docs.tradeset.ai/"
+Issues = "https://github.com/tradeset/tradeset-public/issues/"
+Source = "https://github.com/tradeset/tradeset-public/"
+
