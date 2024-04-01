@@ -1,12 +1,13 @@
+import io
+import gc
 import requests
 import pandas as pd
 from sklearn.model_selection import TimeSeriesSplit
 import time
-from typing import Union 
+from typing import Union, Dict
 import pandas as pd
 import numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
-import gc
 
 
 def create_target(forex_pair:str,
@@ -68,7 +69,7 @@ def create_TS_cross_val_folds(
     :n_splits: K in cross-folds
     :test_size: test size
     """
-    all_dates = df_all.index.get_level_values("_time").unique().sort_values()
+    all_dates = df_all.index.get_level_values("_time").unique().sort_values("_time")
     tscv = TimeSeriesSplit(
         gap = train_test_gap_size,
         max_train_size=max_train_size + test_size,
@@ -235,3 +236,15 @@ def run_model_on_folds(df, folds, model, early_stopping_rounds):
         df[df.model_prediction != -1][["K", "model_prediction", "model_prediction_proba", "target"]],
     )
 
+def backtest_strategy(df_model_signal: pd.DataFrame, strategy_config:Dict[str,Union[int,str]], api_key:str):
+    buffer = io.BytesIO()
+    df_model_signal.to_parquet(buffer)
+    parquet_bytes = buffer.getvalue()
+
+    headers = {"Authorization": api_key}
+
+    # Create files dictionary with in-memory Parquet bytes
+    files = {"df_model_signal_file": ("df_model_signal.parquet", parquet_bytes)}
+
+    res = requests.post("http://127.0.0.1:8001/backtest", headers=headers, params=strategy_config, files=files)
+    return res

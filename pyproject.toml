@@ -1,9 +1,9 @@
 [project]
 name = "tradeset"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
-  { name="Mohammad Talaei", email="m.Talaei.sut@gmail.com" },
-  { name="Morteza Omidi", email="Mortezaomidi24@yahoo.com" },
+  { name="Mohammad Talaei", email="m.talaei.sut@gmail.com" },
+  { name="Morteza Omidi", email="mortezaomidi24@yahoo.com" },
 ]
 description = "Tradeset"
 readme = "README.md"
