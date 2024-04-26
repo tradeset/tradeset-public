@@ -43,17 +43,20 @@ def create_target(forex_pair:str,
   
   return target_token, target_name
 
-def get_features(forex_pair:str, api_key: str):
-
+def get_features(forex_pair:str, api_key: str ,return_test_set: bool = True):
     headers = {
     "Authorization":api_key
     }
     params = {
         'symbol_pair': forex_pair,
     }
-
+    
     res = requests.get("http://127.0.0.1:8001/get_dataset",headers=headers,params=params,)
     open(f"./{forex_pair}.parquet", 'wb').write(res.content)
+
+    if return_test_set:
+        res = requests.get("http://127.0.0.1:8001/data/test/get_dataset/",headers=headers,params=params,)
+        open(f"./{forex_pair}_test.parquet", 'wb').write(res.content)
 
 def create_TS_cross_val_folds(
     df_all :pd.DataFrame,
