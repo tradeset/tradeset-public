@@ -5,4 +5,5 @@ from .tools import (
   cal_eval,
   run_model_on_folds,
   backtest_strategy,
+  submit_to_leaderboard,
 )
