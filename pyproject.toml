@@ -1,6 +1,6 @@
 [project]
 name = "tradeset"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Mohammad Talaei", email="m.talaei.sut@gmail.com" },
   { name="Morteza Omidi", email="mortezaomidi24@yahoo.com" },

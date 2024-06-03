@@ -27,12 +27,12 @@ def create_target(
         "stop_loss": target_stop_loss,
     }
     res = requests.post(
-        "http://127.0.0.1:8001/get_target_token",
+        "https://api.tradeset.ai/get_target_token",
         headers=headers,
         json=data,
     )
     res_status = int(res.status_code)
-    assert res_status == 200, f"!!! status code: {res_status}"
+    assert res_status == 200, f"!!! {res.json()}. status code: {res_status}"
     target_token = res.json()["target_token"]
     print(res.json()["massage"])
     headers = {"Authorization": api_key}
@@ -41,12 +41,12 @@ def create_target(
     }
 
     res = requests.get(
-        "http://127.0.0.1:8001/get_target",
+        "https://api.tradeset.ai/get_target",
         headers=headers,
         params=data,
     )
     res_status = int(res.status_code)
-    assert res_status == 200, f"!!! status code: {res_status}"
+    assert res_status == 200, f"!!! {res.json()}. status code: {res_status}"
     target_name = f"trg_clf_{trade_mode}_{forex_pair}_M{target_look_ahead}_TP{target_take_profit}_SL{target_stop_loss}"
     open(f"./{target_name}.parquet", "wb").write(res.content)
 
@@ -59,18 +59,16 @@ def get_features(forex_pair: str, api_key: str, feature_type: str = "train"):
         "forex_pair": forex_pair,
         "feature_type": feature_type,
     }
-
-    res = requests.get(
-        "http://127.0.0.1:8001/get_dataset",
-        headers=headers,
-        json=data,
-    )
-    print(res.headers["token_count"])
-    # print(res.headers)
-    res_status = int(res.status_code)
-    assert res_status == 200, f"!!! status code: {res_status}"
     file_path = f"./{forex_pair}_{feature_type}.parquet"
-    open(file_path, "wb").write(res.content)
+    CHUNK_SIZE = 1024 * 1024  # = 1MB, modify the chunk size as desired
+    with requests.post("https://api.tradeset.ai/get_dataset",headers=headers,json=data, stream=True) as r:
+        assert r.status_code == 200, f"!!! {r.json()}. status code: {r.status_code}"
+        r.raise_for_status()
+        with open(file_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=CHUNK_SIZE): 
+                f.write(chunk)
+        print(r.headers["token_count"])
+        print(r.headers["file_size"])
     print(f"feature parquet saved in {file_path}")
 
 
@@ -254,24 +252,31 @@ def backtest_strategy(
     strategy_config: Dict[str, Union[int, str]],
     api_key: str,
 ):
+    if 'backtest_type' not in strategy_config.keys():
+        strategy_config["backtest_type"] = "train"
+        start_time = df_model_signal.index.min()
+        stop_time = df_model_signal.index.max()
+        strategy_config['start_time'] = start_time
+        strategy_config['stop_time'] = stop_time
+
+    df_model_signal = df_model_signal.loc[df_model_signal.model_prediction == 1] # Select signals
     buffer = io.BytesIO()
     df_model_signal.to_parquet(buffer)
     parquet_bytes = buffer.getvalue()
-    if 'backtest_type' not in strategy_config.keys():
-        strategy_config["backtest_type"] = "train"
+    
     headers = {"Authorization": api_key}
 
     # Create files dictionary with in-memory Parquet bytes
     files = {"df_model_signal_file": ("df_model_signal.parquet", parquet_bytes)}
 
     backtest_results = requests.get(
-        "http://127.0.0.1:8001/backtest",
+        "https://api.tradeset.ai/backtest",
         headers=headers,
         params=strategy_config,
         files=files,
     )
     res_status = int(backtest_results.status_code)
-    assert res_status == 200, f"!!! status code: {res_status}"
+    assert res_status == 200, f"!!! {backtest_results.json()}. status code: {res_status}"
 
     backtest_results_dict = dict(backtest_results.headers)
     # print("--> backtest_results_dict:")
