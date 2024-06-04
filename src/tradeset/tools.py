@@ -285,7 +285,12 @@ def backtest_strategy(
     backtest_results_dict = {
         key: backtest_results_dict[key]
         for key in backtest_results_dict
-        if key not in ["content-length", "server", "backtest_token"]
+        if key in ["token_count",
+                    "profit_pips",
+                    "profit_cash",
+                    "max_draw_down",
+                    "profit_percent",
+                    "duration"]
     }
     backtest_results_dict["profit_pips"] = int(backtest_results_dict["profit_pips"])
     backtest_results_dict["profit_cash"] = int(backtest_results_dict["profit_cash"])
