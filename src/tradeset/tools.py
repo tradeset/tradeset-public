@@ -287,13 +287,13 @@ def backtest_strategy(
         for key in backtest_results_dict
         if key in ["token_count",
                     "profit_pips",
-                    "profit_cash",
+                    "final_balance",
                     "max_draw_down",
                     "profit_percent",
                     "duration"]
     }
     backtest_results_dict["profit_pips"] = int(backtest_results_dict["profit_pips"])
-    backtest_results_dict["profit_cash"] = int(backtest_results_dict["profit_cash"])
+    backtest_results_dict["final_balance"] = int(backtest_results_dict["final_balance"])
     backtest_results_dict["duration"] = int(backtest_results_dict["duration"])
     backtest_results_dict["max_draw_down"] = float(
         backtest_results_dict["max_draw_down"]
